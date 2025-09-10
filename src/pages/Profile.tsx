@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,27 +18,50 @@ export default function Profile() {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   
-  // Local state for UI only
+  // Local state for UI and form inputs
+  const [localUser, setLocalUser] = useState(state.me);
   const [newTag, setNewTag] = useState('');
   const [viewMode, setViewMode] = useState<'public' | 'networking' | 'social'>('public');
   const [showFullPreview, setShowFullPreview] = useState(false);
   const [showPreviewMobile, setShowPreviewMobile] = useState(false);
 
+  // Update local state when global state changes
+  useEffect(() => {
+    setLocalUser(state.me);
+  }, [state.me]);
+
   // Create a live preview user object
   const previewUser = {
-    ...state.me,
-    bio: state.me.bio.length > 160 ? state.me.bio.substring(0, 160) + "..." : state.me.bio
+    ...localUser,
+    bio: localUser.bio.length > 160 ? localUser.bio.substring(0, 160) + "..." : localUser.bio
   };
 
-  // Update app.me in real-time when form fields change
+  // Debounced update to global state to prevent focus loss
+  const debouncedUpdate = useCallback(
+    (() => {
+      let timeoutId: NodeJS.Timeout;
+      return (field: string, value: any) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+          updateState(prev => ({
+            ...prev,
+            me: {
+              ...prev.me,
+              [field]: value
+            }
+          }));
+        }, 500); // 500ms debounce
+      };
+    })(),
+    [updateState]
+  );
+
+  // Update field with immediate local state update and debounced global update
   const updateField = (field: string, value: any) => {
-    updateState(prev => ({
-      ...prev,
-      me: {
-        ...prev.me,
-        [field]: value
-      }
-    }));
+    // Update local state immediately for responsive UI
+    setLocalUser(prev => ({ ...prev, [field]: value }));
+    // Debounce global state update to prevent focus loss
+    debouncedUpdate(field, value);
   };
 
   const handleSave = (e: React.FormEvent) => {
@@ -64,18 +87,18 @@ export default function Profile() {
   };
 
   const addTag = () => {
-    if (newTag.trim() && !state.me.tags.includes(newTag.trim())) {
-      updateField('tags', [...state.me.tags, newTag.trim()]);
+    if (newTag.trim() && !localUser.tags.includes(newTag.trim())) {
+      updateField('tags', [...localUser.tags, newTag.trim()]);
       setNewTag('');
     }
   };
 
   const removeTag = (tagToRemove: string) => {
-    updateField('tags', state.me.tags.filter(tag => tag !== tagToRemove));
+    updateField('tags', localUser.tags.filter(tag => tag !== tagToRemove));
   };
 
   const removePhoto = (indexToRemove: number) => {
-    const newPhotos = [...state.me.photos];
+    const newPhotos = [...localUser.photos];
     newPhotos.splice(indexToRemove, 1);
     updateField('photos', newPhotos);
   };
@@ -97,7 +120,7 @@ export default function Profile() {
       </div>
       
       {/* View Mode Toggles */}
-      <div className="space-y-2">
+        <div className="space-y-2">
         <p className="text-body-small font-medium">View Mode:</p>
         <div className="flex gap-2">
           {(['public', 'networking', 'social'] as const).map((mode) => (
@@ -159,7 +182,7 @@ export default function Profile() {
             <Label htmlFor="name">Full Name</Label>
             <Input
               id="name"
-              value={state.me.name}
+              value={localUser.name}
               onChange={(e) => updateField('name', e.target.value)}
             />
           </div>
@@ -168,7 +191,7 @@ export default function Profile() {
             <Label htmlFor="city">City</Label>
             <Input
               id="city"
-              value={state.me.city}
+              value={localUser.city}
               onChange={(e) => updateField('city', e.target.value)}
             />
           </div>
@@ -179,7 +202,7 @@ export default function Profile() {
             <Label htmlFor="sector">Sector</Label>
             <Input
               id="sector"
-              value={state.me.sector}
+              value={localUser.sector}
               onChange={(e) => updateField('sector', e.target.value)}
             />
           </div>
@@ -188,7 +211,7 @@ export default function Profile() {
             <Label htmlFor="headline">Headline</Label>
             <Input
               id="headline"
-              value={state.me.headline}
+              value={localUser.headline}
               onChange={(e) => updateField('headline', e.target.value)}
             />
           </div>
@@ -199,11 +222,11 @@ export default function Profile() {
           <Textarea
             id="bio"
             maxLength={200}
-            value={state.me.bio}
+            value={localUser.bio}
             onChange={(e) => updateField('bio', e.target.value)}
           />
           <p className="text-body-small text-muted-foreground mt-1">
-            {state.me.bio.length}/200 characters
+            {localUser.bio.length}/200 characters
           </p>
         </div>
       </div>
@@ -213,7 +236,7 @@ export default function Profile() {
         <h2 className="text-heading-medium">Interests</h2>
         
         <div className="flex flex-wrap gap-2">
-          {state.me.tags.map((tag, index) => (
+          {localUser.tags.map((tag, index) => (
             <Badge key={index} variant="secondary" className="flex items-center gap-1">
               {tag}
               <button
@@ -251,7 +274,7 @@ export default function Profile() {
         
         <div className="grid grid-cols-3 gap-3">
           {Array.from({ length: 6 }, (_, index) => {
-            const photo = state.me.photos[index];
+            const photo = localUser.photos[index];
             return (
               <div key={index} className="relative aspect-square">
                 {photo ? (
@@ -282,7 +305,7 @@ export default function Profile() {
                           reader.onload = (event) => {
                             const dataUrl = event.target?.result as string;
                             if (dataUrl) {
-                              const newPhotos = [...state.me.photos];
+                              const newPhotos = [...localUser.photos];
                               newPhotos[index] = dataUrl;
                               updateField('photos', newPhotos);
                             }
@@ -314,10 +337,10 @@ export default function Profile() {
             </div>
             <Switch
               id="public"
-              checked={state.me.privacy?.public ?? true}
+              checked={localUser.privacy?.public ?? true}
               onCheckedChange={(checked) => 
                 updateField('privacy', { 
-                  ...state.me.privacy, 
+                  ...localUser.privacy, 
                   public: checked 
                 })
               }
@@ -333,10 +356,10 @@ export default function Profile() {
             </div>
             <Switch
               id="visibleByCity"
-              checked={state.me.privacy?.visibleByCity ?? true}
+              checked={localUser.privacy?.visibleByCity ?? true}
               onCheckedChange={(checked) => 
                 updateField('privacy', { 
-                  ...state.me.privacy, 
+                  ...localUser.privacy, 
                   visibleByCity: checked 
                 })
               }
@@ -352,10 +375,10 @@ export default function Profile() {
             </div>
             <Switch
               id="visibleBySector"
-              checked={state.me.privacy?.visibleBySector ?? true}
+              checked={localUser.privacy?.visibleBySector ?? true}
               onCheckedChange={(checked) => 
                 updateField('privacy', { 
-                  ...state.me.privacy, 
+                  ...localUser.privacy, 
                   visibleBySector: checked 
                 })
               }
@@ -371,10 +394,10 @@ export default function Profile() {
   );
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className={`mx-auto px-4 py-6 ${isMobile ? 'max-w-2xl' : 'max-w-7xl'}`}>
-        <div className="mb-6">
-          <h1 className="text-heading-large mb-2">Edit Profile</h1>
+    <div className={`${isMobile ? 'h-full overflow-y-auto' : 'min-h-screen'} bg-background`}>
+      <div className={`mx-auto px-4 ${isMobile ? 'py-4 pb-20' : 'py-6'} ${isMobile ? 'max-w-2xl' : 'max-w-7xl'}`}>
+        <div className={`${isMobile ? 'mb-4' : 'mb-6'}`}>
+          <h1 className={`${isMobile ? 'text-lg font-semibold' : 'text-heading-large'} mb-2`}>Edit Profile</h1>
           <p className="text-body text-muted-foreground">
             Update your information to improve your matches
           </p>
@@ -382,7 +405,7 @@ export default function Profile() {
 
         {isMobile ? (
           /* Mobile Layout */
-          <div className="space-y-6">
+          <div className="space-y-4">
             {/* Mobile Preview - Collapsible */}
             <Collapsible open={showPreviewMobile} onOpenChange={setShowPreviewMobile}>
               <CollapsibleTrigger asChild>
@@ -400,7 +423,7 @@ export default function Profile() {
             </Collapsible>
 
             {/* Mobile Form */}
-            <form onSubmit={handleSave} className="space-y-6">
+            <form onSubmit={handleSave} className="space-y-4">
               <FormContent />
             </form>
           </div>

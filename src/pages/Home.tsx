@@ -167,8 +167,8 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-md px-4 py-6">
+    <div className="h-full bg-background overflow-hidden">
+      <div className="h-full flex flex-col mx-auto max-w-md px-4 py-4">
         {/* Filters */}
         <div className="mb-6 flex gap-4">
           <div className="flex-1">
