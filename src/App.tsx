@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { TopNav } from "./components/TopNav";
 import Welcome from "./pages/Welcome";
 import Application from "./pages/Application";
+import Explore from "./pages/Explore";
 import Home from "./pages/Home";
 import Chat from "./pages/Chat";
 import Profile from "./pages/Profile";
@@ -25,6 +26,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Welcome />} />
             <Route path="/application" element={<Application />} />
+            <Route path="/explore" element={<Explore />} />
             <Route path="/home" element={<Home />} />
             <Route path="/chat" element={<Chat />} />
             <Route path="/profile" element={<Profile />} />

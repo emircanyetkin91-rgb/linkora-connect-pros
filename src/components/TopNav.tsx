@@ -1,12 +1,13 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { Home, MessageCircle, User, Settings } from 'lucide-react';
+import { Search, Heart, MessageCircle, User, Settings } from 'lucide-react';
 
 export function TopNav() {
   const location = useLocation();
   
   const navItems = [
-    { to: '/home', icon: Home, label: 'Home' },
-    { to: '/chat', icon: MessageCircle, label: 'Chat' },
+    { to: '/explore', icon: Search, label: 'Explore' },
+    { to: '/home', icon: Heart, label: 'Swipe' },
+    { to: '/chat', icon: MessageCircle, label: 'Matches' },
     { to: '/profile', icon: User, label: 'Profile' },
     { to: '/settings', icon: Settings, label: 'Settings' },
   ];
@@ -21,7 +22,7 @@ export function TopNav() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center">
-            <h1 className="text-heading-medium text-primary">Linkora</h1>
+            <h1 className="text-heading-medium text-primary">Nexa</h1>
           </div>
           
           <div className="flex space-x-1">

@@ -31,6 +31,9 @@ export interface Message {
 
 export interface AppState {
   me: User;
+  auth: {
+    isSignedIn: boolean;
+  };
   userStatus: 'pending' | 'approved' | 'denied';
   demoMode: boolean;
   filters: {
@@ -45,7 +48,7 @@ export interface AppState {
   mockProfiles: User[];
 }
 
-const STORAGE_KEY = 'linkora_app';
+const STORAGE_KEY = 'nexa_app';
 
 const defaultState: AppState = {
   me: {
@@ -65,6 +68,9 @@ const defaultState: AppState = {
       visibleByCity: true,
       visibleBySector: true
     }
+  },
+  auth: {
+    isSignedIn: false
   },
   userStatus: "pending",
   demoMode: true,
