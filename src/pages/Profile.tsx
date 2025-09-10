@@ -18,8 +18,7 @@ export default function Profile() {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   
-  // Live binding - update app.me directly instead of local form state
-  const [tags, setTags] = useState([...state.me.tags]);
+  // Local state for UI only
   const [newTag, setNewTag] = useState('');
   const [newPhoto, setNewPhoto] = useState('');
   const [viewMode, setViewMode] = useState<'public' | 'networking' | 'social'>('public');
@@ -29,7 +28,6 @@ export default function Profile() {
   // Create a live preview user object
   const previewUser = {
     ...state.me,
-    tags,
     bio: state.me.bio.length > 160 ? state.me.bio.substring(0, 160) + "..." : state.me.bio
   };
 
@@ -43,17 +41,6 @@ export default function Profile() {
       }
     }));
   };
-
-  // Update tags in real-time
-  useEffect(() => {
-    updateState(prev => ({
-      ...prev,
-      me: {
-        ...prev.me,
-        tags
-      }
-    }));
-  }, [tags, updateState]);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,21 +58,21 @@ export default function Profile() {
       case 'networking':
         return `${state.me.sector} • ${state.me.headline}`;
       case 'social':
-        return tags.length > 0 ? tags.slice(0, 2).join(" • ") : "No interests added";
+        return state.me.tags.length > 0 ? state.me.tags.slice(0, 2).join(" • ") : "No interests added";
       default:
         return "Visible to approved members";
     }
   };
 
   const addTag = () => {
-    if (newTag.trim() && !tags.includes(newTag.trim())) {
-      setTags([...tags, newTag.trim()]);
+    if (newTag.trim() && !state.me.tags.includes(newTag.trim())) {
+      updateField('tags', [...state.me.tags, newTag.trim()]);
       setNewTag('');
     }
   };
 
   const removeTag = (tagToRemove: string) => {
-    setTags(tags.filter(tag => tag !== tagToRemove));
+    updateField('tags', state.me.tags.filter(tag => tag !== tagToRemove));
   };
 
   const addPhoto = () => {
@@ -232,7 +219,7 @@ export default function Profile() {
         <h2 className="text-heading-medium">Interests</h2>
         
         <div className="flex flex-wrap gap-2">
-          {tags.map((tag, index) => (
+          {state.me.tags.map((tag, index) => (
             <Badge key={index} variant="secondary" className="flex items-center gap-1">
               {tag}
               <button
@@ -251,7 +238,12 @@ export default function Profile() {
             placeholder="Add a tag (e.g., Open to collaborations)"
             value={newTag}
             onChange={(e) => setNewTag(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                addTag();
+              }
+            }}
           />
           <Button type="button" onClick={addTag} size="sm">
             <Plus className="h-4 w-4" />
@@ -287,7 +279,12 @@ export default function Profile() {
             placeholder="Add photo URL"
             value={newPhoto}
             onChange={(e) => setNewPhoto(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addPhoto())}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                addPhoto();
+              }
+            }}
           />
           <Button type="button" onClick={addPhoto} size="sm">
             <Plus className="h-4 w-4" />
