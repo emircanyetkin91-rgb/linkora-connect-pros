@@ -2,15 +2,15 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { ProfileCard } from '@/components/ProfileCard';
 import { ActionBar } from '@/components/ActionBar';
 import { EmptyState } from '@/components/EmptyState';
 import { MatchModal } from '@/components/MatchModal';
 import { useAppStore } from '@/hooks/useAppStore';
-import { getCurrentCard, createMatch, pickConnectionType, getMatchedUser } from '@/lib/store';
+import { getCurrentCard, createMatch, pickConnectionType } from '@/lib/store';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useSwipeable } from 'react-swipeable';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -20,107 +20,59 @@ export default function Home() {
   const [showMatchModal, setShowMatchModal] = useState(false);
   const [matchedUser, setMatchedUser] = useState<any>(null);
   const [connectionType, setConnectionType] = useState<string>('');
-  
+
   const currentCard = getCurrentCard(state);
   const cities = ['All', ...Array.from(new Set(state.mockProfiles.map(p => p.city)))];
   const sectors = ['All', ...Array.from(new Set(state.mockProfiles.map(p => p.sector)))];
 
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      if (!currentCard) return;
-      
-      switch (e.key) {
-        case 'ArrowLeft':
-          handlePass();
-          break;
-        case 'ArrowRight':
-          handleLike();
-          break;
-        case 'ArrowUp':
-          handleSuper();
-          break;
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [currentCard]);
-
+  // Like / Dislike / Superlike handlers
   const handlePass = () => {
     if (!currentCard) return;
-    
     updateState(prev => ({
       ...prev,
       dislikedIds: [...prev.dislikedIds, currentCard.id]
     }));
-    
-    toast({
-      title: "Passed",
-      description: `Passed on ${currentCard.name}`,
-    });
+    toast({ title: "Passed", description: `Passed on ${currentCard.name}` });
   };
 
   const handleLike = () => {
     if (!currentCard) return;
-    
     updateState(prev => {
       const newState = {
         ...prev,
         likedIds: [...prev.likedIds, currentCard.id]
       };
-      
-      // Simulate mutual like in demo mode
       if (prev.demoMode && Math.random() < 0.4) {
         const connType = pickConnectionType();
         const finalState = createMatch(newState, prev.me.id, currentCard.id, connType);
-        
-        // Show match modal
         setMatchedUser(currentCard);
         setConnectionType(connType);
         setShowMatchModal(true);
-        
         return finalState;
       }
-      
       return newState;
     });
-    
-    toast({
-      title: "Liked! 💖",
-      description: `Liked ${currentCard.name}`,
-    });
+    toast({ title: "Liked! 💖", description: `Liked ${currentCard.name}` });
   };
 
   const handleSuper = () => {
     if (!currentCard) return;
-    
     updateState(prev => {
       const newState = {
         ...prev,
         likedIds: [...prev.likedIds, currentCard.id]
       };
-      
-      // Higher chance for super likes in demo mode
       if (prev.demoMode && Math.random() < 0.6) {
         const connType = pickConnectionType();
         const finalState = createMatch(newState, prev.me.id, currentCard.id, connType);
-        
-        // Show match modal
         setMatchedUser(currentCard);
         setConnectionType(connType);
         setShowMatchModal(true);
-        
         return finalState;
       }
-      
       return newState;
     });
-    
-    toast({
-      title: "Super Liked! ⭐",
-      description: `Super liked ${currentCard.name}`,
-    });
+    toast({ title: "Super Liked! ⭐", description: `Super liked ${currentCard.name}` });
   };
 
   const handleResetDeck = () => {
@@ -130,11 +82,7 @@ export default function Home() {
       dislikedIds: [],
       filters: { city: 'All', sector: 'All' }
     }));
-    
-    toast({
-      title: "Deck Reset",
-      description: "All profiles are available again",
-    });
+    toast({ title: "Deck Reset", description: "All profiles are available again" });
   };
 
   const handleStartChat = () => {
@@ -144,11 +92,30 @@ export default function Home() {
 
   const handlePlanCoffee = () => {
     setShowMatchModal(false);
-    toast({
-      title: "Coffee Scheduled! ☕",
-      description: "Feature coming soon - scheduling integration",
-    });
+    toast({ title: "Coffee Scheduled! ☕", description: "Feature coming soon" });
   };
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (!currentCard) return;
+      switch (e.key) {
+        case 'ArrowLeft': handlePass(); break;
+        case 'ArrowRight': handleLike(); break;
+        case 'ArrowUp': handleSuper(); break;
+      }
+    };
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [currentCard]);
+
+  // Swipe gestures (touch & mouse)
+  const handlers = useSwipeable({
+    onSwipedLeft: () => handlePass(),
+    onSwipedRight: () => handleLike(),
+    onSwipedUp: () => handleSuper(),
+    trackMouse: true
+  });
 
   if (!state.auth.isSignedIn) {
     return (
@@ -160,7 +127,6 @@ export default function Home() {
               Please sign in to start swiping and matching.
             </p>
           </div>
-          
           <Button onClick={() => navigate('/')} className="w-full">
             Go to Sign In
           </Button>
@@ -170,167 +136,43 @@ export default function Home() {
   }
 
   return (
-    <div className={`${isMobile ? 'h-full flex flex-col overflow-hidden' : 'min-h-screen'} bg-background`}>
-      {isMobile ? (
-        <div className="flex flex-col h-full px-4 py-2">
-          {/* Mobile Filters - Compact */}
-          <div className="mb-4 flex gap-2 shrink-0">
-            <div className="flex-1">
-              <Select
-                value={state.filters.city}
-                onValueChange={(value) => updateState(prev => ({
-                  ...prev,
-                  filters: { ...prev.filters, city: value }
-                }))}
-              >
-                <SelectTrigger className="h-8 text-sm">
-                  <SelectValue placeholder="City" />
-                </SelectTrigger>
-                <SelectContent>
-                  {cities.map(city => (
-                    <SelectItem key={city} value={city}>
-                      {city}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="flex-1">
-              <Select
-                value={state.filters.sector}
-                onValueChange={(value) => updateState(prev => ({
-                  ...prev,
-                  filters: { ...prev.filters, sector: value }
-                }))}
-              >
-                <SelectTrigger className="h-8 text-sm">
-                  <SelectValue placeholder="Sector" />
-                </SelectTrigger>
-                <SelectContent>
-                  {sectors.map(sector => (
-                    <SelectItem key={sector} value={sector}>
-                      {sector}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+    <div className={`${isMobile ? 'h-screen flex flex-col' : 'min-h-screen'} bg-background`}>
+      {currentCard ? (
+        <div {...handlers} className="flex flex-col justify-between items-center h-full px-4 py-4">
+          {/* Profile Card */}
+          <div className="flex-grow flex items-center justify-center w-full">
+            <ProfileCard
+              user={currentCard}
+              onSwipeLeft={handlePass}
+              onSwipeRight={handleLike}
+              onSwipeUp={handleSuper}
+            />
           </div>
 
-          {/* Profile Card or Empty State */}
-          {currentCard ? (
-            <div className="flex-1 flex flex-col min-h-0">
-              <div className="flex-1 min-h-0 mb-3">
-                <ProfileCard
-                  user={currentCard}
-                  onSwipeLeft={handlePass}
-                  onSwipeRight={handleLike}
-                />
-              </div>
-              
-              <div className="shrink-0 mb-2">
-                <ActionBar
-                  onPass={handlePass}
-                  onSuper={handleSuper}
-                  onLike={handleLike}
-                />
-              </div>
-              
-              {/* Keyboard shortcuts hint */}
-              <div className="text-center text-xs text-muted-foreground shrink-0">
-                ← pass • → like • ↑ super like
-              </div>
-            </div>
-          ) : (
-            <div className="flex-1 flex items-center justify-center">
-              <EmptyState
-                icon="🎉"
-                title="You're all caught up!"
-                description="No more profiles to show. Reset your deck to see them again."
-                actionLabel="Reset Deck"
-                onAction={handleResetDeck}
-              />
-            </div>
-          )}
+          {/* Action Buttons */}
+          <div className="shrink-0 w-full max-w-md mb-4">
+            <ActionBar
+              onPass={handlePass}
+              onSuper={handleSuper}
+              onLike={handleLike}
+            />
+          </div>
+
+          {/* Hint */}
+          <div className="text-center text-xs text-muted-foreground mb-2">
+            ← pass • → like • ↑ super like
+          </div>
         </div>
       ) : (
-        <div className="h-full flex flex-col mx-auto max-w-md px-4 py-4">
-          {/* Desktop Filters */}
-          <div className="mb-6 flex gap-4">
-            <div className="flex-1">
-              <Select
-                value={state.filters.city}
-                onValueChange={(value) => updateState(prev => ({
-                  ...prev,
-                  filters: { ...prev.filters, city: value }
-                }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="City" />
-                </SelectTrigger>
-                <SelectContent>
-                  {cities.map(city => (
-                    <SelectItem key={city} value={city}>
-                      {city}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="flex-1">
-                <Select
-                  value={state.filters.sector}
-                  onValueChange={(value) => updateState(prev => ({
-                    ...prev,
-                    filters: { ...prev.filters, sector: value }
-                  }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sector" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {sectors.map(sector => (
-                      <SelectItem key={sector} value={sector}>
-                        {sector}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Profile Card or Empty State */}
-            {currentCard ? (
-              <div className="space-y-6">
-                <ProfileCard
-                  user={currentCard}
-                  onSwipeLeft={handlePass}
-                  onSwipeRight={handleLike}
-                />
-                
-                <ActionBar
-                  onPass={handlePass}
-                  onSuper={handleSuper}
-                  onLike={handleLike}
-                />
-                
-                {/* Keyboard shortcuts hint */}
-                <div className="text-center text-body-small text-muted-foreground">
-                  Use ← to pass, → to like, ↑ to super like
-                </div>
-              </div>
-            ) : (
-              <EmptyState
-                icon="🎉"
-                title="You're all caught up!"
-                description="No more profiles to show. Reset your deck to see them again."
-                actionLabel="Reset Deck"
-                onAction={handleResetDeck}
-              />
-            )}
-          </div>
+        <div className="flex-1 flex items-center justify-center">
+          <EmptyState
+            icon="🎉"
+            title="You're all caught up!"
+            description="No more profiles to show. Reset your deck to see them again."
+            actionLabel="Reset Deck"
+            onAction={handleResetDeck}
+          />
+        </div>
       )}
 
       {/* Match Modal */}
