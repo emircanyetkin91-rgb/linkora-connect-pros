@@ -33,6 +33,8 @@ export interface AppState {
   me: User;
   auth: {
     isSignedIn: boolean;
+    provider?: string;
+    email?: string;
   };
   userStatus: 'pending' | 'approved' | 'denied';
   demoMode: boolean;
@@ -70,9 +72,11 @@ const defaultState: AppState = {
     }
   },
   auth: {
-    isSignedIn: false
+    isSignedIn: false,
+    provider: null,
+    email: ""
   },
-  userStatus: "pending",
+  userStatus: "approved",
   demoMode: true,
   filters: { city: "All", sector: "All" },
   likedIds: [],
@@ -205,7 +209,7 @@ export function saveState(state: AppState): void {
 }
 
 export function getAvailableProfiles(state: AppState): User[] {
-  if (state.userStatus !== 'approved') return [];
+  if (!state.auth.isSignedIn) return [];
   
   return state.mockProfiles.filter(profile => {
     // Exclude already liked/disliked

@@ -2,17 +2,30 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Mail, Linkedin } from 'lucide-react';
 import { useAppStore } from '@/hooks/useAppStore';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Welcome() {
   const navigate = useNavigate();
   const { updateState } = useAppStore();
+  const { toast } = useToast();
 
-  const handleSignIn = () => {
+  const handleSignIn = (provider: string) => {
     updateState(state => ({
       ...state,
-      auth: { isSignedIn: true }
+      auth: { 
+        isSignedIn: true,
+        provider,
+        email: provider === 'email' ? 'user@example.com' : undefined
+      },
+      userStatus: 'approved'
     }));
-    navigate('/application');
+    
+    toast({
+      title: "Welcome to Nexa! 🎉",
+      description: "You're in. Start exploring.",
+    });
+    
+    navigate('/explore');
   };
 
   return (
@@ -30,7 +43,7 @@ export default function Welcome() {
           <div className="space-y-4 mb-8">
             <Button
               className="w-full"
-              onClick={handleSignIn}
+              onClick={() => handleSignIn('linkedin')}
             >
               <Linkedin className="mr-2 h-4 w-4" />
               Continue with LinkedIn
@@ -39,27 +52,18 @@ export default function Welcome() {
             <Button
               variant="outline"
               className="w-full"
-              onClick={handleSignIn}
+              onClick={() => handleSignIn('email')}
             >
               <Mail className="mr-2 h-4 w-4" />
               Continue with Email
             </Button>
           </div>
 
-          <div className="text-center">
-            <Button
-              variant="ghost"
-              onClick={() => navigate('/application')}
-              className="text-primary hover:text-primary/80"
-            >
-              Apply Now →
-            </Button>
-          </div>
         </div>
       </div>
       
       <div className="text-center p-4 text-body-small text-muted-foreground">
-        Nexa is invite-only. Apply to join our community.
+        Welcome to Nexa. Connect meaningfully.
       </div>
     </div>
   );

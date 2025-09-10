@@ -33,16 +33,16 @@ export default function Explore() {
     }));
   };
 
-  if (state.userStatus !== 'approved') {
+  if (!state.auth.isSignedIn) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-md">
         <div className="text-center">
-          <h2 className="text-heading-medium mb-4">Complete Your Application</h2>
+          <h2 className="text-heading-medium mb-4">Sign In Required</h2>
           <p className="text-body text-muted-foreground mb-6">
-            You need to be approved to explore profiles.
+            Please sign in to explore profiles.
           </p>
-          <Button onClick={() => window.location.href = '/application'}>
-            Go to Application
+          <Button onClick={() => window.location.href = '/'}>
+            Go to Sign In
           </Button>
         </div>
       </div>

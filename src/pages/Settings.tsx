@@ -37,8 +37,26 @@ export default function Settings() {
   };
 
   const handleFactoryReset = () => {
-    localStorage.removeItem('linkora_app');
+    localStorage.removeItem('nexa_app');
     window.location.reload();
+  };
+
+  const handleSeedDemoData = () => {
+    // Re-populate mockProfiles if empty (already defined in defaultState)
+    updateState(prev => ({
+      ...prev,
+      // Reset to ensure we have demo data
+      likedIds: [],
+      dislikedIds: [],
+      matches: [],
+      messages: {},
+      selectedMatchId: null
+    }));
+    
+    toast({
+      title: "Demo Data Seeded",
+      description: "Fresh demo profiles and data loaded.",
+    });
   };
 
   return (
@@ -84,6 +102,23 @@ export default function Settings() {
             <h2 className="text-heading-medium mb-4">Data Management</h2>
             
             <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-heading-small">Quick Seed Demo Data</h3>
+                  <p className="text-body-small text-muted-foreground">
+                    Reset all interactions and reload fresh demo profiles
+                  </p>
+                </div>
+                <Button 
+                  variant="outline" 
+                  onClick={handleSeedDemoData}
+                  className="shrink-0"
+                >
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                  Seed Data
+                </Button>
+              </div>
+
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-heading-small">Reset Deck</h3>

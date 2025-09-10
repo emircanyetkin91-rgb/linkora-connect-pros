@@ -25,7 +25,7 @@ const App = () => (
           <TopNav />
           <Routes>
             <Route path="/" element={<Welcome />} />
-            <Route path="/application" element={<Application />} />
+            <Route path="/application" element={<Application />} /> {/* Hidden redirect route */}
             <Route path="/explore" element={<Explore />} />
             <Route path="/home" element={<Home />} />
             <Route path="/chat" element={<Chat />} />

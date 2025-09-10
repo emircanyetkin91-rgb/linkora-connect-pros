@@ -147,19 +147,19 @@ export default function Home() {
     });
   };
 
-  if (state.userStatus !== 'approved') {
+  if (!state.auth.isSignedIn) {
     return (
       <div className="min-h-screen bg-background">
         <div className="mx-auto max-w-md px-4 py-12">
           <div className="rounded-lg border border-warning bg-warning/10 p-4 mb-6">
-            <h2 className="text-heading-small text-warning mb-2">Application Pending</h2>
+            <h2 className="text-heading-small text-warning mb-2">Sign In Required</h2>
             <p className="text-body-small text-muted-foreground">
-              Complete your application to start swiping and matching.
+              Please sign in to start swiping and matching.
             </p>
           </div>
           
-          <Button onClick={() => navigate('/application')} className="w-full">
-            Complete Application
+          <Button onClick={() => navigate('/')} className="w-full">
+            Go to Sign In
           </Button>
         </div>
       </div>
