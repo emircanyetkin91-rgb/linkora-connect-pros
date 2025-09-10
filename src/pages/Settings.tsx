@@ -3,11 +3,14 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useAppStore } from '@/hooks/useAppStore';
 import { useToast } from '@/hooks/use-toast';
-import { Trash2, RotateCcw, RefreshCw } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
+import { Trash2, RotateCcw, RefreshCw, LogOut } from 'lucide-react';
 
 export default function Settings() {
   const { state, updateState } = useAppStore();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleResetDeck = () => {
     updateState(prev => ({
@@ -57,6 +60,34 @@ export default function Settings() {
       title: "Demo Data Seeded",
       description: "Fresh demo profiles and data loaded.",
     });
+  };
+
+  const handleLogOut = async () => {
+    try {
+      // Sign out from Supabase
+      await supabase.auth.signOut();
+      
+      // Clear local session state
+      updateState(prev => ({
+        ...prev,
+        auth: { isSignedIn: false },
+        userStatus: 'pending'
+      }));
+      
+      toast({
+        title: "Logged Out",
+        description: "You've been successfully logged out.",
+      });
+      
+      // Redirect to welcome screen
+      navigate('/');
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to log out. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -201,6 +232,28 @@ export default function Settings() {
                 <span className="text-body-small text-muted-foreground">Demo Mode</span>
                 <span className="text-body-small">{state.demoMode ? 'Enabled' : 'Disabled'}</span>
               </div>
+            </div>
+          </div>
+
+          {/* Account */}
+          <div className="rounded-lg border border-border bg-card p-4">
+            <h2 className="text-heading-medium mb-4">Account</h2>
+            
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-heading-small">Log Out</h3>
+                <p className="text-body-small text-muted-foreground">
+                  Sign out of your account and return to welcome screen
+                </p>
+              </div>
+              <Button 
+                variant="outline" 
+                onClick={handleLogOut}
+                className="shrink-0"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Log Out
+              </Button>
             </div>
           </div>
 
