@@ -20,7 +20,6 @@ export default function Profile() {
   
   // Local state for UI only
   const [newTag, setNewTag] = useState('');
-  const [newPhoto, setNewPhoto] = useState('');
   const [viewMode, setViewMode] = useState<'public' | 'networking' | 'social'>('public');
   const [showFullPreview, setShowFullPreview] = useState(false);
   const [showPreviewMobile, setShowPreviewMobile] = useState(false);
@@ -75,15 +74,10 @@ export default function Profile() {
     updateField('tags', state.me.tags.filter(tag => tag !== tagToRemove));
   };
 
-  const addPhoto = () => {
-    if (newPhoto.trim() && !state.me.photos.includes(newPhoto.trim())) {
-      updateField('photos', [...state.me.photos, newPhoto.trim()]);
-      setNewPhoto('');
-    }
-  };
-
-  const removePhoto = (photoToRemove: string) => {
-    updateField('photos', state.me.photos.filter(photo => photo !== photoToRemove));
+  const removePhoto = (indexToRemove: number) => {
+    const newPhotos = [...state.me.photos];
+    newPhotos.splice(indexToRemove, 1);
+    updateField('photos', newPhotos);
   };
 
   const handleCopyLink = () => {
@@ -255,40 +249,54 @@ export default function Profile() {
       <div className="space-y-4">
         <h2 className="text-heading-medium">Photos</h2>
         
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {state.me.photos.map((photo, index) => (
-            <div key={index} className="relative group">
-              <img
-                src={photo}
-                alt={`Photo ${index + 1}`}
-                className="aspect-square w-full rounded-lg object-cover"
-              />
-              <button
-                type="button"
-                onClick={() => removePhoto(photo)}
-                className="absolute -top-2 -right-2 rounded-full bg-destructive p-1 text-destructive-foreground opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </div>
-          ))}
-        </div>
-        
-        <div className="flex gap-2">
-          <Input
-            placeholder="Add photo URL"
-            value={newPhoto}
-            onChange={(e) => setNewPhoto(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                addPhoto();
-              }
-            }}
-          />
-          <Button type="button" onClick={addPhoto} size="sm">
-            <Plus className="h-4 w-4" />
-          </Button>
+        <div className="grid grid-cols-3 gap-3">
+          {Array.from({ length: 6 }, (_, index) => {
+            const photo = state.me.photos[index];
+            return (
+              <div key={index} className="relative aspect-square">
+                {photo ? (
+                  <>
+                    <img
+                      src={photo}
+                      alt={`Profile photo ${index + 1}`}
+                      className="w-full h-full object-cover rounded-lg border-2 border-border"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removePhoto(index)}
+                      className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-destructive/80"
+                    >
+                      ×
+                    </button>
+                  </>
+                ) : (
+                  <label className="w-full h-full border-2 border-dashed border-border rounded-lg flex items-center justify-center cursor-pointer hover:border-primary hover:bg-accent/50 transition-colors">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onload = (event) => {
+                            const dataUrl = event.target?.result as string;
+                            if (dataUrl) {
+                              const newPhotos = [...state.me.photos];
+                              newPhotos[index] = dataUrl;
+                              updateField('photos', newPhotos);
+                            }
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                    <Plus className="h-6 w-6 text-muted-foreground" />
+                  </label>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 

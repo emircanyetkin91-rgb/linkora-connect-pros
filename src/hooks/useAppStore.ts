@@ -12,10 +12,5 @@ export function useAppStore() {
     });
   };
 
-  // Save state whenever it changes
-  useEffect(() => {
-    saveState(state);
-  }, [state]);
-
   return { state, updateState };
 }
