@@ -94,21 +94,21 @@ export default function Settings() {
   };
 
   return (
-    <div className={isMobile ? "h-full flex flex-col" : "min-h-screen bg-background"}>
+    <div className={isMobile ? "h-full flex flex-col overflow-hidden" : "min-h-screen bg-background"}>
       {isMobile ? (
-        <ScrollArea className="flex-1">
-          <div className="mx-auto max-w-2xl px-4 py-6 pb-safe-area-inset-bottom">
-            <div className="mb-6">
-              <h1 className="text-heading-large mb-2">Settings</h1>
-              <p className="text-body text-muted-foreground">
+        <ScrollArea className="flex-1 px-4">
+          <div className="py-4 pb-24">
+            <div className="mb-4">
+              <h1 className="text-xl font-semibold mb-2">Settings</h1>
+              <p className="text-sm text-muted-foreground">
                 Manage your app preferences and data
               </p>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-4">
               {/* Demo Mode */}
-              <div className="rounded-lg border border-border bg-card p-4">
-                <h2 className="text-heading-medium mb-4">Demo Settings</h2>
+              <div className="rounded-lg border border-border bg-card p-3">
+                <h2 className="text-base font-semibold mb-3">Demo Settings</h2>
                 
                 <div className="flex items-center justify-between">
                   <div>
@@ -134,129 +134,129 @@ export default function Settings() {
               </div>
 
               {/* Data Management */}
-              <div className="rounded-lg border border-border bg-card p-4">
-                <h2 className="text-heading-medium mb-4">Data Management</h2>
+              <div className="rounded-lg border border-border bg-card p-3">
+                <h2 className="text-base font-semibold mb-3">Data Management</h2>
                 
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-heading-small">Quick Seed Demo Data</h3>
-                      <p className="text-body-small text-muted-foreground">
+                    <div className="flex-1 mr-3">
+                      <h3 className="text-sm font-medium">Quick Seed Demo Data</h3>
+                      <p className="text-xs text-muted-foreground">
                         Reset all interactions and reload fresh demo profiles
                       </p>
                     </div>
                     <Button 
                       variant="outline" 
                       onClick={handleSeedDemoData}
+                      size="sm"
                       className="shrink-0"
                     >
-                      <RefreshCw className="mr-2 h-4 w-4" />
-                      Seed Data
+                      <RefreshCw className="mr-1 h-3 w-3" />
+                      Seed
                     </Button>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-heading-small">Reset Deck</h3>
-                      <p className="text-body-small text-muted-foreground">
+                    <div className="flex-1 mr-3">
+                      <h3 className="text-sm font-medium">Reset Deck</h3>
+                      <p className="text-xs text-muted-foreground">
                         Clear liked/passed profiles to see them again
                       </p>
                     </div>
                     <Button 
                       variant="outline" 
                       onClick={handleResetDeck}
+                      size="sm"
                       className="shrink-0"
                     >
-                      <RotateCcw className="mr-2 h-4 w-4" />
+                      <RotateCcw className="mr-1 h-3 w-3" />
                       Reset
                     </Button>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-heading-small">Reset Matches & Messages</h3>
-                      <p className="text-body-small text-muted-foreground">
+                    <div className="flex-1 mr-3">
+                      <h3 className="text-sm font-medium">Reset Matches</h3>
+                      <p className="text-xs text-muted-foreground">
                         Clear all your matches and chat history
                       </p>
                     </div>
                     <Button 
                       variant="outline" 
                       onClick={handleResetMatches}
+                      size="sm"
                       className="shrink-0"
                     >
-                      <RefreshCw className="mr-2 h-4 w-4" />
+                      <RefreshCw className="mr-1 h-3 w-3" />
                       Reset
                     </Button>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-heading-small text-destructive">Factory Reset</h3>
-                      <p className="text-body-small text-muted-foreground">
+                    <div className="flex-1 mr-3">
+                      <h3 className="text-sm font-medium text-destructive">Factory Reset</h3>
+                      <p className="text-xs text-muted-foreground">
                         Delete all local data and start fresh
                       </p>
                     </div>
                     <Button 
                       variant="destructive" 
                       onClick={handleFactoryReset}
+                      size="sm"
                       className="shrink-0"
                     >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Reset All
+                      <Trash2 className="mr-1 h-3 w-3" />
+                      Reset
                     </Button>
                   </div>
                 </div>
               </div>
 
               {/* App Info */}
-              <div className="rounded-lg border border-border bg-card p-4">
-                <h2 className="text-heading-medium mb-4">About</h2>
+              <div className="rounded-lg border border-border bg-card p-3">
+                <h2 className="text-base font-semibold mb-3">About</h2>
                 
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-body-small text-muted-foreground">Version</span>
-                    <span className="text-body-small">MVP-0.1 (UI/local state)</span>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Version</span>
+                    <span>MVP-0.1</span>
                   </div>
                   
-                  <div className="flex justify-between">
-                    <span className="text-body-small text-muted-foreground">Status</span>
-                    <span className="text-body-small capitalize">{state.userStatus}</span>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Status</span>
+                    <span className="capitalize">{state.userStatus}</span>
                   </div>
                   
-                  <div className="flex justify-between">
-                    <span className="text-body-small text-muted-foreground">Profiles Liked</span>
-                    <span className="text-body-small">{state.likedIds.length}</span>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Liked</span>
+                    <span>{state.likedIds.length}</span>
                   </div>
                   
-                  <div className="flex justify-between">
-                    <span className="text-body-small text-muted-foreground">Matches</span>
-                    <span className="text-body-small">{state.matches.length}</span>
-                  </div>
-                  
-                  <div className="flex justify-between">
-                    <span className="text-body-small text-muted-foreground">Demo Mode</span>
-                    <span className="text-body-small">{state.demoMode ? 'Enabled' : 'Disabled'}</span>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Matches</span>
+                    <span>{state.matches.length}</span>
                   </div>
                 </div>
               </div>
 
               {/* Account */}
-              <div className="rounded-lg border border-border bg-card p-4">
-                <h2 className="text-heading-medium mb-4">Account</h2>
+              <div className="rounded-lg border border-border bg-card p-3">
+                <h2 className="text-base font-semibold mb-3">Account</h2>
                 
                 <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-heading-small">Log Out</h3>
-                    <p className="text-body-small text-muted-foreground">
-                      Sign out of your account and return to welcome screen
+                  <div className="flex-1 mr-3">
+                    <h3 className="text-sm font-medium">Log Out</h3>
+                    <p className="text-xs text-muted-foreground">
+                      Sign out and return to welcome screen
                     </p>
                   </div>
                   <Button 
                     variant="outline" 
                     onClick={handleLogOut}
+                    size="sm"
                     className="shrink-0"
                   >
-                    <LogOut className="mr-2 h-4 w-4" />
+                    <LogOut className="mr-1 h-3 w-3" />
                     Log Out
                   </Button>
                 </div>

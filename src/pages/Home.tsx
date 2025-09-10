@@ -170,90 +170,90 @@ export default function Home() {
   }
 
   return (
-    <div className={`${isMobile ? 'h-full flex flex-col' : 'min-h-screen'} bg-background ${isMobile ? '' : 'overflow-hidden'}`}>
+    <div className={`${isMobile ? 'h-full flex flex-col overflow-hidden' : 'min-h-screen'} bg-background`}>
       {isMobile ? (
-        <ScrollArea className="flex-1">
-          <div className="flex flex-col px-4 py-4 pb-safe-area-inset-bottom min-h-full">
-            {/* Mobile Filters */}
-            <div className="mb-6 flex gap-4">
-              <div className="flex-1">
-                <Select
-                  value={state.filters.city}
-                  onValueChange={(value) => updateState(prev => ({
-                    ...prev,
-                    filters: { ...prev.filters, city: value }
-                  }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="City" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {cities.map(city => (
-                      <SelectItem key={city} value={city}>
-                        {city}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+        <div className="flex flex-col h-full px-4 py-2">
+          {/* Mobile Filters - Compact */}
+          <div className="mb-4 flex gap-2 shrink-0">
+            <div className="flex-1">
+              <Select
+                value={state.filters.city}
+                onValueChange={(value) => updateState(prev => ({
+                  ...prev,
+                  filters: { ...prev.filters, city: value }
+                }))}
+              >
+                <SelectTrigger className="h-8 text-sm">
+                  <SelectValue placeholder="City" />
+                </SelectTrigger>
+                <SelectContent>
+                  {cities.map(city => (
+                    <SelectItem key={city} value={city}>
+                      {city}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="flex-1">
+              <Select
+                value={state.filters.sector}
+                onValueChange={(value) => updateState(prev => ({
+                  ...prev,
+                  filters: { ...prev.filters, sector: value }
+                }))}
+              >
+                <SelectTrigger className="h-8 text-sm">
+                  <SelectValue placeholder="Sector" />
+                </SelectTrigger>
+                <SelectContent>
+                  {sectors.map(sector => (
+                    <SelectItem key={sector} value={sector}>
+                      {sector}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Profile Card or Empty State */}
+          {currentCard ? (
+            <div className="flex-1 flex flex-col min-h-0">
+              <div className="flex-1 min-h-0 mb-3">
+                <ProfileCard
+                  user={currentCard}
+                  onSwipeLeft={handlePass}
+                  onSwipeRight={handleLike}
+                />
               </div>
               
-              <div className="flex-1">
-                <Select
-                  value={state.filters.sector}
-                  onValueChange={(value) => updateState(prev => ({
-                    ...prev,
-                    filters: { ...prev.filters, sector: value }
-                  }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sector" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {sectors.map(sector => (
-                      <SelectItem key={sector} value={sector}>
-                        {sector}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Profile Card or Empty State */}
-            {currentCard ? (
-              <div className="space-y-6 flex-1 flex flex-col">
-                <div className="flex-1">
-                  <ProfileCard
-                    user={currentCard}
-                    onSwipeLeft={handlePass}
-                    onSwipeRight={handleLike}
-                  />
-                </div>
-                
+              <div className="shrink-0 mb-2">
                 <ActionBar
                   onPass={handlePass}
                   onSuper={handleSuper}
                   onLike={handleLike}
                 />
-                
-                {/* Keyboard shortcuts hint */}
-                <div className="text-center text-body-small text-muted-foreground">
-                  Use ← to pass, → to like, ↑ to super like
-                </div>
               </div>
-            ) : (
-              <div className="flex-1 flex items-center justify-center">
-                <EmptyState
-                  icon="🎉"
-                  title="You're all caught up!"
-                  description="No more profiles to show. Reset your deck to see them again."
-                  actionLabel="Reset Deck"
-                  onAction={handleResetDeck}
-                />
+              
+              {/* Keyboard shortcuts hint */}
+              <div className="text-center text-xs text-muted-foreground shrink-0">
+                ← pass • → like • ↑ super like
               </div>
-            )}
-          </div>
-        </ScrollArea>
+            </div>
+          ) : (
+            <div className="flex-1 flex items-center justify-center">
+              <EmptyState
+                icon="🎉"
+                title="You're all caught up!"
+                description="No more profiles to show. Reset your deck to see them again."
+                actionLabel="Reset Deck"
+                onAction={handleResetDeck}
+              />
+            </div>
+          )}
+        </div>
       ) : (
         <div className="h-full flex flex-col mx-auto max-w-md px-4 py-4">
           {/* Desktop Filters */}

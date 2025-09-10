@@ -62,9 +62,9 @@ export default function Chat() {
     // Mobile: Single view with back button
     if (state.selectedMatchId && !showMatchList) {
       return (
-        <div className="flex h-screen bg-background flex-col">
+        <div className="h-full flex flex-col bg-background">
           {/* Header */}
-          <div className="flex items-center border-b border-border bg-background p-4">
+          <div className="flex items-center border-b border-border bg-background p-4 shrink-0">
             <Button
               variant="ghost"
               size="sm"
@@ -92,7 +92,7 @@ export default function Chat() {
 
           {/* Messages */}
           <ScrollArea className="flex-1 p-4">
-            <div className="space-y-2">
+            <div className="space-y-2 pb-4">
               {messages.map((message) => (
                 <MessageBubble
                   key={message.id}
@@ -103,20 +103,22 @@ export default function Chat() {
             </div>
           </ScrollArea>
 
-          {/* Message composer */}
-          <form onSubmit={handleSendMessage} className="border-t border-border bg-background p-4">
-            <div className="flex gap-2">
-              <Input
-                value={messageText}
-                onChange={(e) => setMessageText(e.target.value)}
-                placeholder="Type a message..."
-                className="flex-1"
-              />
-              <Button type="submit" disabled={!messageText.trim()}>
-                <Send className="h-4 w-4" />
-              </Button>
-            </div>
-          </form>
+          {/* Message composer - Fixed at bottom */}
+          <div className="border-t border-border bg-background p-4 shrink-0">
+            <form onSubmit={handleSendMessage}>
+              <div className="flex gap-2">
+                <Input
+                  value={messageText}
+                  onChange={(e) => setMessageText(e.target.value)}
+                  placeholder="Type a message..."
+                  className="flex-1"
+                />
+                <Button type="submit" disabled={!messageText.trim()}>
+                  <Send className="h-4 w-4" />
+                </Button>
+              </div>
+            </form>
+          </div>
         </div>
       );
     }
@@ -252,20 +254,22 @@ export default function Chat() {
                 </div>
               </ScrollArea>
 
-              {/* Message composer */}
-              <form onSubmit={handleSendMessage} className="border-t border-border bg-background p-4">
-                <div className="flex gap-2">
-                  <Input
-                    value={messageText}
-                    onChange={(e) => setMessageText(e.target.value)}
-                    placeholder="Type a message..."
-                    className="flex-1"
-                  />
-                  <Button type="submit" disabled={!messageText.trim()}>
-                    <Send className="h-4 w-4" />
-                  </Button>
-                </div>
-              </form>
+              {/* Message composer - Fixed at bottom */}
+              <div className="border-t border-border bg-background p-4 shrink-0">
+                <form onSubmit={handleSendMessage}>
+                  <div className="flex gap-2">
+                    <Input
+                      value={messageText}
+                      onChange={(e) => setMessageText(e.target.value)}
+                      placeholder="Type a message..."
+                      className="flex-1"
+                    />
+                    <Button type="submit" disabled={!messageText.trim()}>
+                      <Send className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </form>
+              </div>
             </>
           ) : (
             <div className="flex-1 flex items-center justify-center">
