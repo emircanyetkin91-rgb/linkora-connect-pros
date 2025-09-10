@@ -5,13 +5,16 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useAppStore } from '@/hooks/useAppStore';
 import { ProfileCard } from '@/components/ProfileCard';
 import { User } from '@/lib/store';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export default function Explore() {
   const { state, updateState } = useAppStore();
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const isMobile = useIsMobile();
 
   const cities = ['All', ...new Set(state.mockProfiles.map(p => p.city))];
   const sectors = ['All', ...new Set(state.mockProfiles.map(p => p.sector))];
@@ -50,99 +53,202 @@ export default function Explore() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6 max-w-4xl">
-      <div className="mb-6">
-        <h1 className="text-heading-large mb-4">Explore</h1>
-        
-        {/* Filters */}
-        <div className="flex gap-4 mb-6">
-          <Select
-            value={state.filters.city}
-            onValueChange={(value) => updateFilters('city', value)}
-          >
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Filter by city" />
-            </SelectTrigger>
-            <SelectContent>
-              {cities.map(city => (
-                <SelectItem key={city} value={city}>{city}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select
-            value={state.filters.sector}
-            onValueChange={(value) => updateFilters('sector', value)}
-          >
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Filter by sector" />
-            </SelectTrigger>
-            <SelectContent>
-              {sectors.map(sector => (
-                <SelectItem key={sector} value={sector}>{sector}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      {/* Profile Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredProfiles.map((profile) => (
-          <Card key={profile.id} className="hover:shadow-md transition-shadow">
-            <CardContent className="p-4">
-              <div className="flex items-start gap-3 mb-3">
-                <Avatar className="h-12 w-12">
-                  <AvatarImage src={profile.photos[0]} alt={profile.name} />
-                  <AvatarFallback>{profile.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-sm truncate">{profile.name}</h3>
-                  <p className="text-body-small text-muted-foreground truncate">{profile.headline}</p>
-                  <p className="text-body-small text-muted-foreground">{profile.city}</p>
-                </div>
-              </div>
+    <div className={`${isMobile ? 'h-full flex flex-col' : 'min-h-screen'} bg-background`}>
+      {isMobile ? (
+        <ScrollArea className="flex-1">
+          <div className="px-4 py-6 pb-safe-area-inset-bottom">
+            <div className="mb-6">
+              <h1 className="text-heading-large mb-4">Explore</h1>
               
-              <div className="flex flex-wrap gap-1 mb-3">
-                {profile.tags.slice(0, 2).map((tag, index) => (
-                  <Badge key={index} variant="secondary" className="text-xs">
-                    {tag}
-                  </Badge>
-                ))}
-                {profile.tags.length > 2 && (
-                  <Badge variant="outline" className="text-xs">
-                    +{profile.tags.length - 2}
-                  </Badge>
-                )}
+              {/* Mobile Filters */}
+              <div className="grid grid-cols-2 gap-2 mb-6">
+                <Select
+                  value={state.filters.city}
+                  onValueChange={(value) => updateFilters('city', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="City" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {cities.map(city => (
+                      <SelectItem key={city} value={city}>{city}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select
+                  value={state.filters.sector}
+                  onValueChange={(value) => updateFilters('sector', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sector" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {sectors.map(sector => (
+                      <SelectItem key={sector} value={sector}>{sector}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-              
+            </div>
+
+            {/* Profile Grid */}
+            <div className="grid grid-cols-1 gap-4">
+              {filteredProfiles.map((profile) => (
+                <Card key={profile.id} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-3 mb-3">
+                      <Avatar className="h-12 w-12">
+                        <AvatarImage src={profile.photos[0]} alt={profile.name} />
+                        <AvatarFallback>{profile.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-sm truncate">{profile.name}</h3>
+                        <p className="text-body-small text-muted-foreground truncate">{profile.headline}</p>
+                        <p className="text-body-small text-muted-foreground">{profile.city}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-1 mb-3">
+                      {profile.tags.slice(0, 2).map((tag, index) => (
+                        <Badge key={index} variant="secondary" className="text-xs">
+                          {tag}
+                        </Badge>
+                      ))}
+                      {profile.tags.length > 2 && (
+                        <Badge variant="outline" className="text-xs">
+                          +{profile.tags.length - 2}
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => setSelectedUser(profile)}
+                    >
+                      View Profile
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {filteredProfiles.length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-body text-muted-foreground mb-4">
+                  No profiles match your current filters.
+                </p>
+                <Button
+                  variant="outline"
+                  onClick={() => updateState(state => ({
+                    ...state,
+                    filters: { city: 'All', sector: 'All' }
+                  }))}
+                >
+                  Clear Filters
+                </Button>
+              </div>
+            )}
+          </div>
+        </ScrollArea>
+      ) : (
+        <div className="container mx-auto px-4 py-6 max-w-4xl">
+          <div className="mb-6">
+            <h1 className="text-heading-large mb-4">Explore</h1>
+            
+            {/* Desktop Filters */}
+            <div className="flex gap-4 mb-6">
+              <Select
+                value={state.filters.city}
+                onValueChange={(value) => updateFilters('city', value)}
+              >
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Filter by city" />
+                </SelectTrigger>
+                <SelectContent>
+                  {cities.map(city => (
+                    <SelectItem key={city} value={city}>{city}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select
+                value={state.filters.sector}
+                onValueChange={(value) => updateFilters('sector', value)}
+              >
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Filter by sector" />
+                </SelectTrigger>
+                <SelectContent>
+                  {sectors.map(sector => (
+                    <SelectItem key={sector} value={sector}>{sector}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Profile Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredProfiles.map((profile) => (
+              <Card key={profile.id} className="hover:shadow-md transition-shadow">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3 mb-3">
+                    <Avatar className="h-12 w-12">
+                      <AvatarImage src={profile.photos[0]} alt={profile.name} />
+                      <AvatarFallback>{profile.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-sm truncate">{profile.name}</h3>
+                      <p className="text-body-small text-muted-foreground truncate">{profile.headline}</p>
+                      <p className="text-body-small text-muted-foreground">{profile.city}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-1 mb-3">
+                    {profile.tags.slice(0, 2).map((tag, index) => (
+                      <Badge key={index} variant="secondary" className="text-xs">
+                        {tag}
+                      </Badge>
+                    ))}
+                    {profile.tags.length > 2 && (
+                      <Badge variant="outline" className="text-xs">
+                        +{profile.tags.length - 2}
+                      </Badge>
+                    )}
+                  </div>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => setSelectedUser(profile)}
+                  >
+                    View Profile
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {filteredProfiles.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-body text-muted-foreground mb-4">
+                No profiles match your current filters.
+              </p>
               <Button
                 variant="outline"
-                size="sm"
-                className="w-full"
-                onClick={() => setSelectedUser(profile)}
+                onClick={() => updateState(state => ({
+                  ...state,
+                  filters: { city: 'All', sector: 'All' }
+                }))}
               >
-                View Profile
+                Clear Filters
               </Button>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {filteredProfiles.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-body text-muted-foreground mb-4">
-            No profiles match your current filters.
-          </p>
-          <Button
-            variant="outline"
-            onClick={() => updateState(state => ({
-              ...state,
-              filters: { city: 'All', sector: 'All' }
-            }))}
-          >
-            Clear Filters
-          </Button>
+            </div>
+          )}
         </div>
       )}
 

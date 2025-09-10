@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { MessageBubble } from '@/components/MessageBubble';
 import { EmptyState } from '@/components/EmptyState';
 import { useAppStore } from '@/hooks/useAppStore';
@@ -45,8 +46,8 @@ export default function Chat() {
 
   if (state.matches.length === 0) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="mx-auto max-w-md px-4 py-12">
+      <div className={`${isMobile ? 'h-full flex flex-col' : 'min-h-screen'} bg-background`}>
+        <div className={`${isMobile ? 'flex-1 flex items-center justify-center' : ''} mx-auto max-w-md px-4 py-12`}>
           <EmptyState
             icon="💬"
             title="No matches yet"
@@ -90,15 +91,17 @@ export default function Chat() {
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4">
-            {messages.map((message) => (
-              <MessageBubble
-                key={message.id}
-                message={message}
-                isMe={message.senderId === state.me.id}
-              />
-            ))}
-          </div>
+          <ScrollArea className="flex-1 p-4">
+            <div className="space-y-2">
+              {messages.map((message) => (
+                <MessageBubble
+                  key={message.id}
+                  message={message}
+                  isMe={message.senderId === state.me.id}
+                />
+              ))}
+            </div>
+          </ScrollArea>
 
           {/* Message composer */}
           <form onSubmit={handleSendMessage} className="border-t border-border bg-background p-4">
@@ -120,48 +123,50 @@ export default function Chat() {
 
     // Mobile: Match list
     return (
-      <div className="min-h-screen bg-background">
-        <div className="p-4">
-          <h2 className="text-heading-medium mb-4">Your Matches</h2>
-          <div className="space-y-3">
-            {state.matches.map((match) => {
-              const user = getMatchedUser(state, match.id);
-              if (!user) return null;
+      <div className="h-full flex flex-col bg-background">
+        <ScrollArea className="flex-1">
+          <div className="p-4 pb-safe-area-inset-bottom">
+            <h2 className="text-heading-medium mb-4">Your Matches</h2>
+            <div className="space-y-3">
+              {state.matches.map((match) => {
+                const user = getMatchedUser(state, match.id);
+                if (!user) return null;
 
-              const lastMessage = (state.messages[match.id] || []).slice(-1)[0];
+                const lastMessage = (state.messages[match.id] || []).slice(-1)[0];
 
-              return (
-                <div
-                  key={match.id}
-                  onClick={() => {
-                    updateState(prev => ({ ...prev, selectedMatchId: match.id }));
-                    setShowMatchList(false);
-                  }}
-                  className="flex items-center gap-3 rounded-lg border border-border bg-card p-3 cursor-pointer hover:bg-muted transition-colors"
-                >
-                  <img
-                    src={user.photos[0]}
-                    alt={user.name}
-                    className="h-12 w-12 rounded-full object-cover"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <h3 className="text-heading-small truncate">{user.name}</h3>
-                      <span className="text-xs bg-grey-100 text-grey-700 px-2 py-1 rounded-full">
-                        {match.connectionType}
-                      </span>
+                return (
+                  <div
+                    key={match.id}
+                    onClick={() => {
+                      updateState(prev => ({ ...prev, selectedMatchId: match.id }));
+                      setShowMatchList(false);
+                    }}
+                    className="flex items-center gap-3 rounded-lg border border-border bg-card p-3 cursor-pointer hover:bg-muted transition-colors"
+                  >
+                    <img
+                      src={user.photos[0]}
+                      alt={user.name}
+                      className="h-12 w-12 rounded-full object-cover"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <h3 className="text-heading-small truncate">{user.name}</h3>
+                        <span className="text-xs bg-grey-100 text-grey-700 px-2 py-1 rounded-full">
+                          {match.connectionType}
+                        </span>
+                      </div>
+                      {lastMessage && (
+                        <p className="text-body-small text-muted-foreground truncate">
+                          {lastMessage.text}
+                        </p>
+                      )}
                     </div>
-                    {lastMessage && (
-                      <p className="text-body-small text-muted-foreground truncate">
-                        {lastMessage.text}
-                      </p>
-                    )}
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </div>
+        </ScrollArea>
       </div>
     );
   }
@@ -175,7 +180,7 @@ export default function Chat() {
           <div className="p-4 border-b border-border">
             <h2 className="text-heading-medium">Matches</h2>
           </div>
-          <div className="overflow-y-auto h-full pb-20">
+          <ScrollArea className="h-full pb-20">
             {state.matches.map((match) => {
               const user = getMatchedUser(state, match.id);
               if (!user) return null;
@@ -212,7 +217,7 @@ export default function Chat() {
                 </div>
               );
             })}
-          </div>
+          </ScrollArea>
         </div>
 
         {/* Chat area */}
@@ -235,15 +240,17 @@ export default function Chat() {
               </div>
 
               {/* Messages */}
-              <div className="flex-1 overflow-y-auto p-4">
-                {messages.map((message) => (
-                  <MessageBubble
-                    key={message.id}
-                    message={message}
-                    isMe={message.senderId === state.me.id}
-                  />
-                ))}
-              </div>
+              <ScrollArea className="flex-1 p-4">
+                <div className="space-y-2">
+                  {messages.map((message) => (
+                    <MessageBubble
+                      key={message.id}
+                      message={message}
+                      isMe={message.senderId === state.me.id}
+                    />
+                  ))}
+                </div>
+              </ScrollArea>
 
               {/* Message composer */}
               <form onSubmit={handleSendMessage} className="border-t border-border bg-background p-4">

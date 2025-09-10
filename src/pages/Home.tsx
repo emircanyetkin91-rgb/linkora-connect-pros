@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { ProfileCard } from '@/components/ProfileCard';
 import { ActionBar } from '@/components/ActionBar';
 import { EmptyState } from '@/components/EmptyState';
@@ -9,11 +10,13 @@ import { MatchModal } from '@/components/MatchModal';
 import { useAppStore } from '@/hooks/useAppStore';
 import { getCurrentCard, createMatch, pickConnectionType, getMatchedUser } from '@/lib/store';
 import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export default function Home() {
   const navigate = useNavigate();
   const { state, updateState } = useAppStore();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [showMatchModal, setShowMatchModal] = useState(false);
   const [matchedUser, setMatchedUser] = useState<any>(null);
   const [connectionType, setConnectionType] = useState<string>('');
@@ -167,83 +170,168 @@ export default function Home() {
   }
 
   return (
-    <div className="h-full bg-background overflow-hidden">
-      <div className="h-full flex flex-col mx-auto max-w-md px-4 py-4">
-        {/* Filters */}
-        <div className="mb-6 flex gap-4">
-          <div className="flex-1">
-            <Select
-              value={state.filters.city}
-              onValueChange={(value) => updateState(prev => ({
-                ...prev,
-                filters: { ...prev.filters, city: value }
-              }))}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="City" />
-              </SelectTrigger>
-              <SelectContent>
-                {cities.map(city => (
-                  <SelectItem key={city} value={city}>
-                    {city}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div className="flex-1">
-            <Select
-              value={state.filters.sector}
-              onValueChange={(value) => updateState(prev => ({
-                ...prev,
-                filters: { ...prev.filters, sector: value }
-              }))}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Sector" />
-              </SelectTrigger>
-              <SelectContent>
-                {sectors.map(sector => (
-                  <SelectItem key={sector} value={sector}>
-                    {sector}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        {/* Profile Card or Empty State */}
-        {currentCard ? (
-          <div className="space-y-6">
-            <ProfileCard
-              user={currentCard}
-              onSwipeLeft={handlePass}
-              onSwipeRight={handleLike}
-            />
-            
-            <ActionBar
-              onPass={handlePass}
-              onSuper={handleSuper}
-              onLike={handleLike}
-            />
-            
-            {/* Keyboard shortcuts hint */}
-            <div className="text-center text-body-small text-muted-foreground">
-              Use ← to pass, → to like, ↑ to super like
+    <div className={`${isMobile ? 'h-full flex flex-col' : 'min-h-screen'} bg-background ${isMobile ? '' : 'overflow-hidden'}`}>
+      {isMobile ? (
+        <ScrollArea className="flex-1">
+          <div className="flex flex-col px-4 py-4 pb-safe-area-inset-bottom min-h-full">
+            {/* Mobile Filters */}
+            <div className="mb-6 flex gap-4">
+              <div className="flex-1">
+                <Select
+                  value={state.filters.city}
+                  onValueChange={(value) => updateState(prev => ({
+                    ...prev,
+                    filters: { ...prev.filters, city: value }
+                  }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="City" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {cities.map(city => (
+                      <SelectItem key={city} value={city}>
+                        {city}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="flex-1">
+                <Select
+                  value={state.filters.sector}
+                  onValueChange={(value) => updateState(prev => ({
+                    ...prev,
+                    filters: { ...prev.filters, sector: value }
+                  }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sector" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {sectors.map(sector => (
+                      <SelectItem key={sector} value={sector}>
+                        {sector}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
+
+            {/* Profile Card or Empty State */}
+            {currentCard ? (
+              <div className="space-y-6 flex-1 flex flex-col">
+                <div className="flex-1">
+                  <ProfileCard
+                    user={currentCard}
+                    onSwipeLeft={handlePass}
+                    onSwipeRight={handleLike}
+                  />
+                </div>
+                
+                <ActionBar
+                  onPass={handlePass}
+                  onSuper={handleSuper}
+                  onLike={handleLike}
+                />
+                
+                {/* Keyboard shortcuts hint */}
+                <div className="text-center text-body-small text-muted-foreground">
+                  Use ← to pass, → to like, ↑ to super like
+                </div>
+              </div>
+            ) : (
+              <div className="flex-1 flex items-center justify-center">
+                <EmptyState
+                  icon="🎉"
+                  title="You're all caught up!"
+                  description="No more profiles to show. Reset your deck to see them again."
+                  actionLabel="Reset Deck"
+                  onAction={handleResetDeck}
+                />
+              </div>
+            )}
           </div>
-        ) : (
-          <EmptyState
-            icon="🎉"
-            title="You're all caught up!"
-            description="No more profiles to show. Reset your deck to see them again."
-            actionLabel="Reset Deck"
-            onAction={handleResetDeck}
-          />
-        )}
-      </div>
+        </ScrollArea>
+      ) : (
+        <div className="h-full flex flex-col mx-auto max-w-md px-4 py-4">
+          {/* Desktop Filters */}
+          <div className="mb-6 flex gap-4">
+            <div className="flex-1">
+              <Select
+                value={state.filters.city}
+                onValueChange={(value) => updateState(prev => ({
+                  ...prev,
+                  filters: { ...prev.filters, city: value }
+                }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="City" />
+                </SelectTrigger>
+                <SelectContent>
+                  {cities.map(city => (
+                    <SelectItem key={city} value={city}>
+                      {city}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="flex-1">
+                <Select
+                  value={state.filters.sector}
+                  onValueChange={(value) => updateState(prev => ({
+                    ...prev,
+                    filters: { ...prev.filters, sector: value }
+                  }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sector" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {sectors.map(sector => (
+                      <SelectItem key={sector} value={sector}>
+                        {sector}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Profile Card or Empty State */}
+            {currentCard ? (
+              <div className="space-y-6">
+                <ProfileCard
+                  user={currentCard}
+                  onSwipeLeft={handlePass}
+                  onSwipeRight={handleLike}
+                />
+                
+                <ActionBar
+                  onPass={handlePass}
+                  onSuper={handleSuper}
+                  onLike={handleLike}
+                />
+                
+                {/* Keyboard shortcuts hint */}
+                <div className="text-center text-body-small text-muted-foreground">
+                  Use ← to pass, → to like, ↑ to super like
+                </div>
+              </div>
+            ) : (
+              <EmptyState
+                icon="🎉"
+                title="You're all caught up!"
+                description="No more profiles to show. Reset your deck to see them again."
+                actionLabel="Reset Deck"
+                onAction={handleResetDeck}
+              />
+            )}
+          </div>
+      )}
 
       {/* Match Modal */}
       {matchedUser && (
