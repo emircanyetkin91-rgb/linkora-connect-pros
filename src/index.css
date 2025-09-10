@@ -1,42 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Linkora Design System - All colors in HSL */
 
 @layer base {
   :root {
+    /* Brand Colors */
+    --primary: 207 78% 31%;           /* #135893 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 28 99% 50%;          /* #FE7800 */
+    --secondary-foreground: 0 0% 100%;
+    
+    /* Status Colors */
+    --success: 142 71% 45%;           /* #22C55E */
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;            /* #F59E0B */
+    --warning-foreground: 0 0% 100%;
+    --danger: 0 84% 60%;              /* #EF4444 */
+    --danger-foreground: 0 0% 100%;
+    
+    /* Neutral Colors - Grey Scale */
+    --grey-50: 0 0% 98%;
+    --grey-100: 0 0% 96%;
+    --grey-200: 0 0% 90%;
+    --grey-300: 0 0% 83%;
+    --grey-400: 0 0% 64%;
+    --grey-500: 0 0% 51%;
+    --grey-600: 0 0% 43%;
+    --grey-700: 0 0% 32%;
+    --grey-800: 0 0% 20%;
+    --grey-900: 0 0% 9%;
+    
+    /* Semantic Tokens */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
+    --foreground: 0 0% 9%;            /* grey-900 */
+    
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
+    --card-foreground: 0 0% 9%;
+    
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
-    --radius: 0.5rem;
+    --popover-foreground: 0 0% 9%;
+    
+    --muted: 0 0% 96%;                /* grey-100 */
+    --muted-foreground: 0 0% 43%;     /* grey-600 */
+    
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 9%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 0 0% 90%;               /* grey-200 */
+    --input: 0 0% 90%;
+    --ring: 207 78% 31%;              /* primary */
+    
+    --radius: 0.75rem;                /* 12px */
+    
+    /* Motion */
+    --transition-fast: 200ms ease-out;
+    --transition-normal: 250ms ease-out;
 
     --sidebar-background: 0 0% 98%;
 
@@ -101,5 +126,88 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+}
+
+@layer components {
+  /* Typography */
+  .text-heading-large {
+    @apply text-2xl font-semibold;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  .text-heading-medium {
+    @apply text-lg font-semibold;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  .text-heading-small {
+    @apply text-base font-semibold;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  .text-body {
+    @apply text-base;
+    font-family: 'Inter', sans-serif;
+  }
+  
+  .text-body-small {
+    @apply text-sm;
+    font-family: 'Inter', sans-serif;
+  }
+  
+  /* Custom animations */
+  .animate-swipe-left {
+    animation: swipe-left var(--transition-normal) ease-out forwards;
+  }
+  
+  .animate-swipe-right {
+    animation: swipe-right var(--transition-normal) ease-out forwards;
+  }
+  
+  .animate-bounce-in {
+    animation: bounce-in var(--transition-normal) ease-out;
+  }
+}
+
+@keyframes swipe-left {
+  0% {
+    transform: translateX(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-100%) rotate(-10deg);
+    opacity: 0;
+  }
+}
+
+@keyframes swipe-right {
+  0% {
+    transform: translateX(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%) rotate(10deg);
+    opacity: 0;
+  }
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
   }
 }
